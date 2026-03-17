@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>✈ Flight Analytics Platform</title>
+
+  <!-- Plotly CDN -->
+  <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+
+  <style>
+    /* ── Reset & Variables ─────────────────────────────────────────── */
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg: #f1f5f9;
+      --surface: #ffffff;
+      --surface2: #f8fafc;
+      --border: #e2e8f0;
+      --border-strong: #cbd5e1;
+      --accent: #2563eb;
+      --accent2: #7c3aed;
+      --accent-light: #dbeafe;
+      --text: #1e293b;
+      --muted: #64748b;
+      --green: #16a34a;
+      --orange: #ea580c;
+      --red: #dc2626;
+      --radius: 12px;
+      --shadow: 0 1px 4px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.06);
+      --shadow-hover: 0 4px 12px rgba(37,99,235,.12), 0 8px 24px rgba(0,0,0,.08);
+    }
+
+    html,
+    body {
+      height: 100%;
+      font-family: 'Inter', system-ui, sans-serif;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      overflow-x: hidden;
+    }
+
+    /* ── Scrollbar ─────────────────────────────────────────────────── */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 3px; }
+
+    /* ── Header ────────────────────────────────────────────────────── */
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 28px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 1px 8px rgba(0,0,0,.06);
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--accent);
+      letter-spacing: .3px;
+    }
+
+    .logo span {
+      color: var(--muted);
+      font-weight: 400;
+      font-size: .82rem;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 6px rgba(22,163,74,.5);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: .4; }
+    }
+
+    #last-updated {
+      font-size: .75rem;
+      color: var(--muted);
+    }
+
+    /* ── Filter Bar ────────────────────────────────────────────────── */
+    .filter-bar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 28px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      flex-wrap: wrap;
+    }
+
+    .filter-bar label {
+      font-size: .8rem;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    select,
+    .btn {
+      background: var(--surface2);
+      color: var(--text);
+      border: 1px solid var(--border-strong);
+      border-radius: 8px;
+      padding: 6px 12px;
+      font-size: .8rem;
+      cursor: pointer;
+      transition: border-color .15s, box-shadow .15s;
+      font-family: inherit;
+    }
+
+    select:focus,
+    .btn:hover {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(37,99,235,.1);
+      outline: none;
+    }
+
+    .btn-accent {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+      font-weight: 600;
+    }
+
+    .btn-accent:hover {
+      background: #1d4ed8;
+      border-color: #1d4ed8;
+      box-shadow: 0 0 0 3px rgba(37,99,235,.2);
+    }
+
+    .btn-outline {
+      background: var(--surface);
+      border-color: var(--border-strong);
+      color: var(--muted);
+    }
+
+    .btn-outline:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* ── ML Banner ─────────────────────────────────────────────────── */
+    #ml-banner {
+      display: none;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 28px;
+      font-size: .8rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    #ml-banner.ok    { background: #f0fdf4; color: #15803d; border-color: #bbf7d0; display: flex; }
+    #ml-banner.warn  { background: #fffbeb; color: #b45309; border-color: #fde68a; display: flex; }
+    #ml-banner.error { background: #fef2f2; color: #b91c1c; border-color: #fecaca; display: flex; }
+
+    #ml-banner .ml-banner-icon { font-size: 1rem; }
+
+    /* ── KPI Row ───────────────────────────────────────────────────── */
+    .kpi-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 16px;
+      padding: 20px 28px;
+    }
+
+    .kpi-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px 20px 16px;
+      box-shadow: var(--shadow);
+      transition: transform .2s, box-shadow .2s, border-color .2s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .kpi-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      border-radius: var(--radius) var(--radius) 0 0;
+    }
+
+    .kpi-card:nth-child(1)::before { background: #2563eb; }
+    .kpi-card:nth-child(2)::before { background: #7c3aed; }
+    .kpi-card:nth-child(3)::before { background: #0891b2; }
+    .kpi-card:nth-child(4)::before { background: #16a34a; }
+    .kpi-card:nth-child(5)::before { background: #ea580c; }
+
+    .kpi-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-hover);
+      border-color: var(--accent);
+    }
+
+    .kpi-label {
+      font-size: .7rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    .kpi-value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-top: 6px;
+      line-height: 1;
+    }
+
+    .kpi-sub {
+      font-size: .72rem;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    /* ── Section Header ────────────────────────────────────────────── */
+    .section-label {
+      font-size: .7rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--muted);
+      font-weight: 600;
+      padding: 4px 28px 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .section-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* ── Grid layout ───────────────────────────────────────────────── */
+    .grid {
+      display: grid;
+      gap: 16px;
+      padding: 8px 28px 0;
+    }
+
+    .grid-2col { grid-template-columns: 1fr 1fr; }
+    .grid-3col { grid-template-columns: 1fr 1fr 1fr; }
+    .grid-1col { grid-template-columns: 1fr; }
+
+    .chart-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 4px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      transition: box-shadow .2s;
+    }
+
+    .chart-card:hover {
+      box-shadow: var(--shadow-hover);
+    }
+
+    /* ── Anomaly Table ─────────────────────────────────────────────── */
+    .anomaly-section {
+      padding: 16px 28px 28px;
+    }
+
+    .section-header {
+      font-size: .9rem;
+      font-weight: 700;
+      color: var(--red);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .8rem;
+    }
+
+    thead th {
+      text-align: left;
+      padding: 10px 14px;
+      background: var(--surface2);
+      color: var(--muted);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .6px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    tbody tr {
+      border-bottom: 1px solid var(--border);
+      transition: background .1s;
+    }
+
+    tbody tr:hover { background: var(--surface2); }
+
+    tbody td { padding: 9px 14px; }
+
+    .badge {
+      display: inline-block;
+      padding: 2px 9px;
+      border-radius: 999px;
+      font-size: .68rem;
+      font-weight: 600;
+    }
+
+    .badge-red    { background: #fee2e2; color: var(--red); }
+    .badge-orange { background: #ffedd5; color: var(--orange); }
+    .badge-green  { background: #dcfce7; color: var(--green); }
+
+    /* ── Loading overlay ───────────────────────────────────────────── */
+    #loading-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(241,245,249,.9);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .spinner {
+      width: 44px;
+      height: 44px;
+      border: 3px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin .8s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    #loading-overlay p {
+      color: var(--muted);
+      font-size: .85rem;
+    }
+
+    /* ── Footer ────────────────────────────────────────────────────── */
+    footer {
+      text-align: center;
+      padding: 20px;
+      font-size: .72rem;
+      color: var(--muted);
+      border-top: 1px solid var(--border);
+      margin-top: 16px;
+      background: var(--surface);
+    }
+
+    footer a { color: var(--accent); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+
+    /* ── ML status inline text ─────────────────────────────────────── */
+    #ml-status {
+      font-size: .75rem;
+      color: var(--muted);
+    }
+
+    /* ── Responsive ────────────────────────────────────────────────── */
+    @media (max-width: 900px) {
+      .grid-2col, .grid-3col { grid-template-columns: 1fr; }
+      .kpi-row { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 480px) {
+      .kpi-row { grid-template-columns: 1fr; }
+      .filter-bar { padding: 10px 16px; }
+      header, .kpi-row, .grid, .anomaly-section { padding-left: 16px; padding-right: 16px; }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ── Loading overlay ─────────────────────────────────────────────────── -->
+  <div id="loading-overlay">
+    <div class="spinner"></div>
+    <p>Loading flight data…</p>
+  </div>
+
+  <!-- ── Header ──────────────────────────────────────────────────────────── -->
+  <header>
+    <div class="logo">
+      ✈ Flight Analytics Platform
+      <span>Real-time · OpenSky → Kafka → Spark → PostgreSQL</span>
+    </div>
+    <div class="header-right">
+      <div class="status-dot" title="Live"></div>
+      <span id="last-updated">—</span>
+      <button class="btn" onclick="refreshAll()">⟳ Refresh</button>
+    </div>
+  </header>
+
+  <!-- ── ML Banner ────────────────────────────────────────────────────────── -->
+  <div id="ml-banner">
+    <span class="ml-banner-icon"></span>
+    <span id="ml-banner-text"></span>
+  </div>
+
+  <!-- ── Filter Bar ───────────────────────────────────────────────────────── -->
+  <div class="filter-bar">
+    <label for="country-select">Filter by country:</label>
+    <select id="country-select" onchange="refreshAll()">
+      <option value="">All Countries</option>
+    </select>
+
+    <label for="hours-select">Time range:</label>
+    <select id="hours-select" onchange="refreshAll()">
+      <option value="6">Last 6 h</option>
+      <option value="12">Last 12 h</option>
+      <option value="24" selected>Last 24 h</option>
+      <option value="48">Last 48 h</option>
+    </select>
+
+    <button class="btn btn-accent" onclick="runMLPrediction()">🤖 Run ML Prediction</button>
+    <button class="btn btn-outline" onclick="checkMLStatus()">🔍 ML Status</button>
+    <button class="btn btn-outline" onclick="reloadModels()">↺ Reload Models</button>
+    <span id="ml-status"></span>
+  </div>
+
+  <!-- ── KPI Row ──────────────────────────────────────────────────────────── -->
+  <div class="kpi-row">
+    <div class="kpi-card">
+      <div class="kpi-label">Active Flights</div>
+      <div class="kpi-value" id="kpi-flights">—</div>
+      <div class="kpi-sub">aircraft in the air</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Avg Speed</div>
+      <div class="kpi-value" id="kpi-speed">—</div>
+      <div class="kpi-sub">km/h</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Avg Altitude</div>
+      <div class="kpi-value" id="kpi-alt">—</div>
+      <div class="kpi-sub">metres</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Countries</div>
+      <div class="kpi-value" id="kpi-countries">—</div>
+      <div class="kpi-sub">origin countries</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">On Ground</div>
+      <div class="kpi-value" id="kpi-ground">—</div>
+      <div class="kpi-sub">aircraft grounded</div>
+    </div>
+  </div>
+
+  <!-- ── Row 1: Map (full width) ─────────────────────────────────────────── -->
+  <div class="section-label">Global Map</div>
+  <div class="grid grid-1col">
+    <div class="chart-card">
+      <div id="chart-flight-map" style="height:420px;"></div>
+    </div>
+  </div>
+
+  <!-- ── Row 2: Country Bar + Time Series ────────────────────────────────── -->
+  <div class="section-label" style="margin-top:16px;">Traffic Analysis</div>
+  <div class="grid grid-2col">
+    <div class="chart-card">
+      <div id="chart-country-bar" style="height:420px;"></div>
+    </div>
+    <div class="chart-card">
+      <div id="chart-time-series" style="height:420px;"></div>
+    </div>
+  </div>
+
+  <!-- ── Row 3: Velocity + Altitude + Region ─────────────────────────────── -->
+  <div class="section-label" style="margin-top:16px;">Distributions</div>
+  <div class="grid grid-3col">
+    <div class="chart-card">
+      <div id="chart-velocity-hist" style="height:300px;"></div>
+    </div>
+    <div class="chart-card">
+      <div id="chart-altitude-dist" style="height:300px;"></div>
+    </div>
+    <div class="chart-card">
+      <div id="chart-region-radar" style="height:300px;"></div>
+    </div>
+  </div>
+
+  <!-- ── Row 4: Density Heatmap ───────────────────────────────────────────── -->
+  <div class="section-label" style="margin-top:16px;">Density Heatmap</div>
+  <div class="grid grid-1col">
+    <div class="chart-card">
+      <div id="chart-density-heat" style="height:420px;"></div>
+    </div>
+  </div>
+
+  <!-- ── Row 5: ML Clusters + Anomaly Bar ────────────────────────────────── -->
+  <div class="section-label" style="margin-top:16px;">Machine Learning</div>
+  <div class="grid grid-2col">
+    <div class="chart-card">
+      <div id="chart-cluster-plot" style="height:320px;"></div>
+    </div>
+    <div class="chart-card">
+      <div id="chart-anomaly-bar" style="height:320px;"></div>
+    </div>
+  </div>
+
+  <!-- ── Anomaly Alerts Table ─────────────────────────────────────────────── -->
+  <div class="anomaly-section">
+    <div class="section-header">⚠️ High Anomaly Flights</div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:auto;box-shadow:var(--shadow);">
+      <table id="anomaly-table">
+        <thead>
+          <tr>
+            <th>ICAO24</th>
+            <th>Callsign</th>
+            <th>Country</th>
+            <th>Speed (km/h)</th>
+            <th>Altitude (m)</th>
+            <th>Anomaly Score</th>
+          </tr>
+        </thead>
+        <tbody id="anomaly-tbody">
+          <tr>
+            <td colspan="6" style="text-align:center;color:var(--muted);padding:24px;">Loading…</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ── Footer ───────────────────────────────────────────────────────────── -->
+  <footer>
+    Flight Analytics Platform &mdash; Built with Flask · PySpark · Kafka · PostgreSQL &mdash;
+    Data source: <a href="https://opensky-network.org" target="_blank">OpenSky Network</a>
+    &mdash; Build: {{ build_time }}
+  </footer>
+
+  <!-- ── JavaScript ───────────────────────────────────────────────────────── -->
+  <script>
+    const REFRESH_MS = {{ refresh_ms }};
+
+    /* ── Plotly render helper ─────────────────────────────────────────────── */
+    function renderChart(divId, figJson) {
+      try {
+        const fig = JSON.parse(figJson);
+        const layout = Object.assign(fig.layout || {}, {
+          autosize: true,
+          responsive: true,
+        });
+        Plotly.react(divId, fig.data, layout, { responsive: true, displaylogo: false });
+      } catch (e) {
+        console.warn('renderChart error for', divId, e);
+      }
+    }
+
+    /* ── Fetch summary KPIs ───────────────────────────────────────────────── */
+    function loadSummary() {
+      fetch('/api/summary')
+        .then(r => r.json())
+        .then(d => {
+          document.getElementById('kpi-flights').textContent   = fmtNum(d.active_flights);
+          document.getElementById('kpi-speed').textContent     = fmtNum(d.avg_speed_kmh);
+          document.getElementById('kpi-alt').textContent       = fmtNum(d.avg_altitude_m);
+          document.getElementById('kpi-countries').textContent = fmtNum(d.countries);
+          document.getElementById('kpi-ground').textContent    = fmtNum(d.on_ground);
+        })
+        .catch(() => {});
+    }
+
+    /* ── Fetch all charts ─────────────────────────────────────────────────── */
+    function loadCharts() {
+      const country = document.getElementById('country-select').value;
+      const hours   = document.getElementById('hours-select').value;
+      const qs      = `?country=${encodeURIComponent(country)}&hours=${hours}`;
+
+      fetch('/api/charts' + qs)
+        .then(r => r.json())
+        .then(d => {
+          renderChart('chart-flight-map',    d.flight_map);
+          renderChart('chart-country-bar',   d.country_bar);
+          renderChart('chart-velocity-hist', d.velocity_hist);
+          renderChart('chart-altitude-dist', d.altitude_dist);
+          renderChart('chart-time-series',   d.time_series);
+          renderChart('chart-density-heat',  d.density_heat);
+          renderChart('chart-cluster-plot',  d.cluster_plot);
+          renderChart('chart-anomaly-bar',   d.anomaly_bar);
+          renderChart('chart-region-radar',  d.region_radar);
+
+          const ts = new Date(d.generated_at);
+          document.getElementById('last-updated').textContent =
+            'Updated ' + ts.toLocaleTimeString();
+
+          document.getElementById('loading-overlay').style.display = 'none';
+        })
+        .catch(err => {
+          console.error('loadCharts error', err);
+          document.getElementById('loading-overlay').style.display = 'none';
+        });
+    }
+
+    /* ── Fetch anomaly rows ───────────────────────────────────────────────── */
+    function loadAnomalies() {
+      fetch('/api/anomalies?threshold=0.6')
+        .then(r => r.json())
+        .then(rows => {
+          const tbody = document.getElementById('anomaly-tbody');
+          if (!rows.length) {
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:20px;">No anomalies detected</td></tr>';
+            return;
+          }
+          tbody.innerHTML = rows.map(r => `
+            <tr>
+              <td><code style="background:var(--surface2);padding:2px 6px;border-radius:4px;font-size:.78rem;">${r.icao24 || '—'}</code></td>
+              <td>${r.callsign || '—'}</td>
+              <td>${r.origin_country || '—'}</td>
+              <td>${r.avg_velocity_kmh ? r.avg_velocity_kmh.toFixed(0) : '—'}</td>
+              <td>${r.avg_altitude ? r.avg_altitude.toFixed(0) : '—'}</td>
+              <td>${scoreBadge(r.anomaly_score)}</td>
+            </tr>
+          `).join('');
+        })
+        .catch(() => {});
+    }
+
+    function scoreBadge(s) {
+      if (s == null) return '—';
+      const pct = (s * 100).toFixed(1);
+      const cls = s >= 0.8 ? 'badge-red' : s >= 0.65 ? 'badge-orange' : 'badge-green';
+      return `<span class="badge ${cls}">${pct}%</span>`;
+    }
+
+    /* ── Country filter dropdown ──────────────────────────────────────────── */
+    function loadCountries() {
+      fetch('/api/countries')
+        .then(r => r.json())
+        .then(list => {
+          const sel = document.getElementById('country-select');
+          while (sel.options.length > 1) sel.remove(1);
+          list.forEach(c => {
+            const opt = document.createElement('option');
+            opt.value = c; opt.textContent = c;
+            sel.appendChild(opt);
+          });
+        })
+        .catch(() => {});
+    }
+
+    /* ── ML check status ──────────────────────────────────────────────────── */
+    function checkMLStatus() {
+      const banner = document.getElementById('ml-banner');
+      const text   = document.getElementById('ml-banner-text');
+      const icon   = banner.querySelector('.ml-banner-icon');
+      text.textContent = 'Checking ML model status…';
+      banner.className = 'warn';
+
+      fetch('/api/ml/status')
+        .then(r => r.json())
+        .then(d => {
+          if (d.core_ready) {
+            icon.textContent = '✅';
+            text.textContent = `ML models ready — loaded: ${d.models_loaded.join(', ')}`;
+            banner.className = 'ok';
+          } else {
+            const missing = Object.entries(d.errors || {}).map(([k,v]) => `${k}: ${v}`).join(' | ');
+            icon.textContent = '⚠️';
+            text.textContent = `Core models not ready. ${missing || 'Run ml/train_model.py to generate .pkl files.'}`;
+            banner.className = 'warn';
+          }
+        })
+        .catch(e => {
+          icon.textContent = '❌';
+          text.textContent = 'Could not reach /api/ml/status — ' + e.message;
+          banner.className = 'error';
+        });
+    }
+
+    /* ── ML reload ────────────────────────────────────────────────────────── */
+    function reloadModels() {
+      const banner = document.getElementById('ml-banner');
+      const text   = document.getElementById('ml-banner-text');
+      const icon   = banner.querySelector('.ml-banner-icon');
+      icon.textContent = '⏳';
+      text.textContent = 'Reloading ML models…';
+      banner.className = 'warn';
+
+      fetch('/api/ml/reload')
+        .then(r => r.json())
+        .then(d => {
+          if (d.core_ready) {
+            icon.textContent = '✅';
+            text.textContent = `Models reloaded — ${d.reloaded.join(', ')}`;
+            banner.className = 'ok';
+          } else {
+            const errs = Object.entries(d.errors || {}).map(([k,v]) => `${k}: ${v}`).join(' | ');
+            icon.textContent = '⚠️';
+            text.textContent = `Reload incomplete. ${errs || 'Some models still missing.'}`;
+            banner.className = 'warn';
+          }
+        })
+        .catch(e => {
+          icon.textContent = '❌';
+          text.textContent = 'Reload failed — ' + e.message;
+          banner.className = 'error';
+        });
+    }
+
+    /* ── ML trigger ───────────────────────────────────────────────────────── */
+    function runMLPrediction() {
+      const status = document.getElementById('ml-status');
+      status.textContent = '⏳ Running…';
+      const sampleFeatures = [[800, 10000, 0, 90], [500, 5000, 2, 180], [300, 1000, -3, 270]];
+      fetch('/api/ml/predict', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ features: sampleFeatures }),
+      })
+        .then(r => r.json())
+        .then(d => {
+          if (d.error) {
+            status.textContent = '⚠️ ' + d.error;
+            status.style.color = 'var(--orange)';
+          } else {
+            const preds = d.predictions.map(v => v.toFixed(0)).join(', ');
+            status.textContent = `✅ Predicted speeds: ${preds} km/h`;
+            status.style.color = 'var(--green)';
+          }
+        })
+        .catch(e => {
+          status.textContent = '❌ Error: ' + e.message;
+          status.style.color = 'var(--red)';
+        });
+    }
+
+    /* ── Refresh all ─────────────────────────────────────────────────────── */
+    function refreshAll() {
+      loadSummary();
+      loadCharts();
+      loadAnomalies();
+    }
+
+    /* ── Format number ────────────────────────────────────────────────────── */
+    function fmtNum(n) {
+      if (n == null || n === '') return '—';
+      return Number(n).toLocaleString();
+    }
+
+    /* ── Initialise ──────────────────────────────────────────────────────── */
+    document.addEventListener('DOMContentLoaded', () => {
+      loadCountries();
+      refreshAll();
+      checkMLStatus();   // auto-check on load so user sees model state immediately
+      setInterval(refreshAll, REFRESH_MS);
+      setInterval(loadCountries, 120_000);
+    });
+  </script>
+</body>
+
+</html>

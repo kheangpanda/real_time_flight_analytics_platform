@@ -1,0 +1,3 @@
+# Models directory
+# ML model artifacts (.pkl files) are placed here after running train_model.py
+# This file ensures the directory is tracked by git while model binaries are ignored.
