@@ -28,7 +28,7 @@ from confluent_kafka.admin import AdminClient, NewTopic
 KAFKA_BROKER       = os.getenv("KAFKA_BROKER", "localhost:9092")
 OPENSKY_API_URL    = os.getenv("OPENSKY_API_URL", "https://opensky-network.org/api/states/all")
 KAFKA_TOPIC        = "flight_stream"
-POLL_INTERVAL      = int(os.getenv("POLL_INTERVAL_SEC", "10"))
+POLL_INTERVAL      = int(os.getenv("POLL_INTERVAL_SEC", "60"))
 REQUEST_TIMEOUT    = int(os.getenv("REQUEST_TIMEOUT_SEC", "30"))
 MAX_RETRIES        = int(os.getenv("MAX_RETRIES", "5"))
 BACKOFF_BASE       = float(os.getenv("BACKOFF_BASE", "2.0"))

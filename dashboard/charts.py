@@ -81,6 +81,11 @@ def flight_map_chart(rows: List[Dict]) -> str:
         template=TEMPLATE,
         size_max=6,
         opacity=0.85,
+        # text="origin_country",
+    )
+    fig.update_traces(
+        textposition="top center",
+        textfont=dict(size=9, color=FONT_CLR),
     )
     fig.update_geos(
         showcoastlines=True,  coastlinecolor="#94a3b8",

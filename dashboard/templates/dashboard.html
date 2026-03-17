@@ -34,8 +34,8 @@
       --orange: #ea580c;
       --red: #dc2626;
       --radius: 12px;
-      --shadow: 0 1px 4px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.06);
-      --shadow-hover: 0 4px 12px rgba(37,99,235,.12), 0 8px 24px rgba(0,0,0,.08);
+      --shadow: 0 1px 4px rgba(0, 0, 0, .06), 0 4px 16px rgba(0, 0, 0, .06);
+      --shadow-hover: 0 4px 12px rgba(37, 99, 235, .12), 0 8px 24px rgba(0, 0, 0, .08);
     }
 
     html,
@@ -51,9 +51,18 @@
     }
 
     /* ── Scrollbar ─────────────────────────────────────────────────── */
-    ::-webkit-scrollbar { width: 6px; }
-    ::-webkit-scrollbar-track { background: var(--bg); }
-    ::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 3px; }
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--bg);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--border-strong);
+      border-radius: 3px;
+    }
 
     /* ── Header ────────────────────────────────────────────────────── */
     header {
@@ -66,7 +75,7 @@
       position: sticky;
       top: 0;
       z-index: 100;
-      box-shadow: 0 1px 8px rgba(0,0,0,.06);
+      box-shadow: 0 1px 8px rgba(0, 0, 0, .06);
     }
 
     .logo {
@@ -92,17 +101,27 @@
     }
 
     .status-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: var(--green);
-      box-shadow: 0 0 6px rgba(22,163,74,.5);
-      animation: pulse 2s infinite;
+      font-size: 1.2rem;
+      line-height: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: float 3s ease-in-out infinite;
+      filter: drop-shadow(0 0 3px rgba(22, 163, 74, .6));
     }
 
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: .4; }
+    @keyframes float {
+
+      0%,
+      100% {
+        transform: translateY(0px);
+        opacity: 1;
+      }
+
+      50% {
+        transform: translateY(-2px);
+        opacity: 0.9;
+      }
     }
 
     #last-updated {
@@ -143,7 +162,7 @@
     select:focus,
     .btn:hover {
       border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(37,99,235,.1);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, .1);
       outline: none;
     }
 
@@ -157,7 +176,7 @@
     .btn-accent:hover {
       background: #1d4ed8;
       border-color: #1d4ed8;
-      box-shadow: 0 0 0 3px rgba(37,99,235,.2);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, .2);
     }
 
     .btn-outline {
@@ -181,11 +200,30 @@
       border-bottom: 1px solid var(--border);
     }
 
-    #ml-banner.ok    { background: #f0fdf4; color: #15803d; border-color: #bbf7d0; display: flex; }
-    #ml-banner.warn  { background: #fffbeb; color: #b45309; border-color: #fde68a; display: flex; }
-    #ml-banner.error { background: #fef2f2; color: #b91c1c; border-color: #fecaca; display: flex; }
+    #ml-banner.ok {
+      background: #f0fdf4;
+      color: #15803d;
+      border-color: #bbf7d0;
+      display: flex;
+    }
 
-    #ml-banner .ml-banner-icon { font-size: 1rem; }
+    #ml-banner.warn {
+      background: #fffbeb;
+      color: #b45309;
+      border-color: #fde68a;
+      display: flex;
+    }
+
+    #ml-banner.error {
+      background: #fef2f2;
+      color: #b91c1c;
+      border-color: #fecaca;
+      display: flex;
+    }
+
+    #ml-banner .ml-banner-icon {
+      font-size: 1rem;
+    }
 
     /* ── KPI Row ───────────────────────────────────────────────────── */
     .kpi-row {
@@ -209,16 +247,32 @@
     .kpi-card::before {
       content: '';
       position: absolute;
-      top: 0; left: 0; right: 0;
+      top: 0;
+      left: 0;
+      right: 0;
       height: 3px;
       border-radius: var(--radius) var(--radius) 0 0;
     }
 
-    .kpi-card:nth-child(1)::before { background: #2563eb; }
-    .kpi-card:nth-child(2)::before { background: #7c3aed; }
-    .kpi-card:nth-child(3)::before { background: #0891b2; }
-    .kpi-card:nth-child(4)::before { background: #16a34a; }
-    .kpi-card:nth-child(5)::before { background: #ea580c; }
+    .kpi-card:nth-child(1)::before {
+      background: #2563eb;
+    }
+
+    .kpi-card:nth-child(2)::before {
+      background: #7c3aed;
+    }
+
+    .kpi-card:nth-child(3)::before {
+      background: #0891b2;
+    }
+
+    .kpi-card:nth-child(4)::before {
+      background: #16a34a;
+    }
+
+    .kpi-card:nth-child(5)::before {
+      background: #ea580c;
+    }
 
     .kpi-card:hover {
       transform: translateY(-2px);
@@ -275,9 +329,17 @@
       padding: 8px 28px 0;
     }
 
-    .grid-2col { grid-template-columns: 1fr 1fr; }
-    .grid-3col { grid-template-columns: 1fr 1fr 1fr; }
-    .grid-1col { grid-template-columns: 1fr; }
+    .grid-2col {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .grid-3col {
+      grid-template-columns: 1fr 1fr 1fr;
+    }
+
+    .grid-1col {
+      grid-template-columns: 1fr;
+    }
 
     .chart-card {
       background: var(--surface);
@@ -330,9 +392,13 @@
       transition: background .1s;
     }
 
-    tbody tr:hover { background: var(--surface2); }
+    tbody tr:hover {
+      background: var(--surface2);
+    }
 
-    tbody td { padding: 9px 14px; }
+    tbody td {
+      padding: 9px 14px;
+    }
 
     .badge {
       display: inline-block;
@@ -342,15 +408,26 @@
       font-weight: 600;
     }
 
-    .badge-red    { background: #fee2e2; color: var(--red); }
-    .badge-orange { background: #ffedd5; color: var(--orange); }
-    .badge-green  { background: #dcfce7; color: var(--green); }
+    .badge-red {
+      background: #fee2e2;
+      color: var(--red);
+    }
+
+    .badge-orange {
+      background: #ffedd5;
+      color: var(--orange);
+    }
+
+    .badge-green {
+      background: #dcfce7;
+      color: var(--green);
+    }
 
     /* ── Loading overlay ───────────────────────────────────────────── */
     #loading-overlay {
       position: fixed;
       inset: 0;
-      background: rgba(241,245,249,.9);
+      background: rgba(241, 245, 249, .9);
       backdrop-filter: blur(4px);
       display: flex;
       align-items: center;
@@ -369,7 +446,11 @@
       animation: spin .8s linear infinite;
     }
 
-    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
 
     #loading-overlay p {
       color: var(--muted);
@@ -387,8 +468,14 @@
       background: var(--surface);
     }
 
-    footer a { color: var(--accent); text-decoration: none; }
-    footer a:hover { text-decoration: underline; }
+    footer a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    footer a:hover {
+      text-decoration: underline;
+    }
 
     /* ── ML status inline text ─────────────────────────────────────── */
     #ml-status {
@@ -398,14 +485,33 @@
 
     /* ── Responsive ────────────────────────────────────────────────── */
     @media (max-width: 900px) {
-      .grid-2col, .grid-3col { grid-template-columns: 1fr; }
-      .kpi-row { grid-template-columns: repeat(2, 1fr); }
+
+      .grid-2col,
+      .grid-3col {
+        grid-template-columns: 1fr;
+      }
+
+      .kpi-row {
+        grid-template-columns: repeat(2, 1fr);
+      }
     }
 
     @media (max-width: 480px) {
-      .kpi-row { grid-template-columns: 1fr; }
-      .filter-bar { padding: 10px 16px; }
-      header, .kpi-row, .grid, .anomaly-section { padding-left: 16px; padding-right: 16px; }
+      .kpi-row {
+        grid-template-columns: 1fr;
+      }
+
+      .filter-bar {
+        padding: 10px 16px;
+      }
+
+      header,
+      .kpi-row,
+      .grid,
+      .anomaly-section {
+        padding-left: 16px;
+        padding-right: 16px;
+      }
     }
   </style>
 </head>
@@ -425,7 +531,7 @@
       <span>Real-time · OpenSky → Kafka → Spark → PostgreSQL</span>
     </div>
     <div class="header-right">
-      <div class="status-dot" title="Live"></div>
+      <div class="status-dot" title="Live">✈️</div>
       <span id="last-updated">—</span>
       <button class="btn" onclick="refreshAll()">⟳ Refresh</button>
     </div>
@@ -542,7 +648,8 @@
   <!-- ── Anomaly Alerts Table ─────────────────────────────────────────────── -->
   <div class="anomaly-section">
     <div class="section-header">⚠️ High Anomaly Flights</div>
-    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:auto;box-shadow:var(--shadow);">
+    <div
+      style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:auto;box-shadow:var(--shadow);">
       <table id="anomaly-table">
         <thead>
           <tr>
@@ -593,33 +700,33 @@
       fetch('/api/summary')
         .then(r => r.json())
         .then(d => {
-          document.getElementById('kpi-flights').textContent   = fmtNum(d.active_flights);
-          document.getElementById('kpi-speed').textContent     = fmtNum(d.avg_speed_kmh);
-          document.getElementById('kpi-alt').textContent       = fmtNum(d.avg_altitude_m);
+          document.getElementById('kpi-flights').textContent = fmtNum(d.active_flights);
+          document.getElementById('kpi-speed').textContent = fmtNum(d.avg_speed_kmh);
+          document.getElementById('kpi-alt').textContent = fmtNum(d.avg_altitude_m);
           document.getElementById('kpi-countries').textContent = fmtNum(d.countries);
-          document.getElementById('kpi-ground').textContent    = fmtNum(d.on_ground);
+          document.getElementById('kpi-ground').textContent = fmtNum(d.on_ground);
         })
-        .catch(() => {});
+        .catch(() => { });
     }
 
     /* ── Fetch all charts ─────────────────────────────────────────────────── */
     function loadCharts() {
       const country = document.getElementById('country-select').value;
-      const hours   = document.getElementById('hours-select').value;
-      const qs      = `?country=${encodeURIComponent(country)}&hours=${hours}`;
+      const hours = document.getElementById('hours-select').value;
+      const qs = `?country=${encodeURIComponent(country)}&hours=${hours}`;
 
       fetch('/api/charts' + qs)
         .then(r => r.json())
         .then(d => {
-          renderChart('chart-flight-map',    d.flight_map);
-          renderChart('chart-country-bar',   d.country_bar);
+          renderChart('chart-flight-map', d.flight_map);
+          renderChart('chart-country-bar', d.country_bar);
           renderChart('chart-velocity-hist', d.velocity_hist);
           renderChart('chart-altitude-dist', d.altitude_dist);
-          renderChart('chart-time-series',   d.time_series);
-          renderChart('chart-density-heat',  d.density_heat);
-          renderChart('chart-cluster-plot',  d.cluster_plot);
-          renderChart('chart-anomaly-bar',   d.anomaly_bar);
-          renderChart('chart-region-radar',  d.region_radar);
+          renderChart('chart-time-series', d.time_series);
+          renderChart('chart-density-heat', d.density_heat);
+          renderChart('chart-cluster-plot', d.cluster_plot);
+          renderChart('chart-anomaly-bar', d.anomaly_bar);
+          renderChart('chart-region-radar', d.region_radar);
 
           const ts = new Date(d.generated_at);
           document.getElementById('last-updated').textContent =
@@ -654,7 +761,7 @@
             </tr>
           `).join('');
         })
-        .catch(() => {});
+        .catch(() => { });
     }
 
     function scoreBadge(s) {
@@ -677,14 +784,14 @@
             sel.appendChild(opt);
           });
         })
-        .catch(() => {});
+        .catch(() => { });
     }
 
     /* ── ML check status ──────────────────────────────────────────────────── */
     function checkMLStatus() {
       const banner = document.getElementById('ml-banner');
-      const text   = document.getElementById('ml-banner-text');
-      const icon   = banner.querySelector('.ml-banner-icon');
+      const text = document.getElementById('ml-banner-text');
+      const icon = banner.querySelector('.ml-banner-icon');
       text.textContent = 'Checking ML model status…';
       banner.className = 'warn';
 
@@ -696,7 +803,7 @@
             text.textContent = `ML models ready — loaded: ${d.models_loaded.join(', ')}`;
             banner.className = 'ok';
           } else {
-            const missing = Object.entries(d.errors || {}).map(([k,v]) => `${k}: ${v}`).join(' | ');
+            const missing = Object.entries(d.errors || {}).map(([k, v]) => `${k}: ${v}`).join(' | ');
             icon.textContent = '⚠️';
             text.textContent = `Core models not ready. ${missing || 'Run ml/train_model.py to generate .pkl files.'}`;
             banner.className = 'warn';
@@ -712,8 +819,8 @@
     /* ── ML reload ────────────────────────────────────────────────────────── */
     function reloadModels() {
       const banner = document.getElementById('ml-banner');
-      const text   = document.getElementById('ml-banner-text');
-      const icon   = banner.querySelector('.ml-banner-icon');
+      const text = document.getElementById('ml-banner-text');
+      const icon = banner.querySelector('.ml-banner-icon');
       icon.textContent = '⏳';
       text.textContent = 'Reloading ML models…';
       banner.className = 'warn';
@@ -726,7 +833,7 @@
             text.textContent = `Models reloaded — ${d.reloaded.join(', ')}`;
             banner.className = 'ok';
           } else {
-            const errs = Object.entries(d.errors || {}).map(([k,v]) => `${k}: ${v}`).join(' | ');
+            const errs = Object.entries(d.errors || {}).map(([k, v]) => `${k}: ${v}`).join(' | ');
             icon.textContent = '⚠️';
             text.textContent = `Reload incomplete. ${errs || 'Some models still missing.'}`;
             banner.className = 'warn';
